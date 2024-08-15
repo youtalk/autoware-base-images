@@ -43,21 +43,21 @@ RUN rosdep keys --dependency-types=exec --ignore-src --from-paths src \
     > /rosdep-exec-depend-packages.txt \
   && cat /rosdep-exec-depend-packages.txt
 
-FROM base AS autoware-core-depend
+FROM base AS autoware-core-base
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-core-depend-packages.txt,target=/tmp/rosdep-core-depend-packages.txt \
   apt-get update \
   && cat /tmp/rosdep-core-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
-FROM base AS autoware-universe-depend
+FROM base AS autoware-universe-base
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-universe-depend-packages.txt,target=/tmp/rosdep-universe-depend-packages.txt \
   apt-get update \
   && cat /tmp/rosdep-universe-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
-FROM base AS exec-depend
+FROM base AS runtime-base
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
   apt-get update \

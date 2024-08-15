@@ -1,29 +1,29 @@
 group "default" {
   targets = [
-    "autoware-core-depend",
-    "autoware-universe-depend",
-    "exec-depend"]
+    "autoware-core-base",
+    "autoware-universe-base",
+    "runtime-base"]
 }
 
 // For docker/metadata-action
-target "docker-metadata-action-autoware-core-depend" {}
-target "docker-metadata-action-autoware-universe-depend" {}
-target "docker-metadata-action-exec-depend" {}
+target "docker-metadata-action-autoware-core-base" {}
+target "docker-metadata-action-autoware-universe-base" {}
+target "docker-metadata-action-runtime-base" {}
 
-target "autoware-core-depend" {
-  inherits = ["docker-metadata-action-autoware-core-depend"]
+target "autoware-core-base" {
+  inherits = ["docker-metadata-action-autoware-core-base"]
   dockerfile = "Dockerfile"
-  target = "autoware-core-depend"
+  target = "autoware-core-base"
 }
 
-target "autoware-universe-depend" {
-  inherits = ["docker-metadata-action-autoware-universe-depend"]
+target "autoware-universe-base" {
+  inherits = ["docker-metadata-action-autoware-universe-base"]
   dockerfile = "Dockerfile"
-  target = "autoware-universe-depend"
+  target = "autoware-universe-base"
 }
 
-target "exec-depend" {
-  inherits = ["docker-metadata-action-exec-depend"]
+target "runtime-base" {
+  inherits = ["docker-metadata-action-runtime-base"]
   dockerfile = "Dockerfile"
-  target = "exec-depend"
+  target = "runtime-base"
 }
