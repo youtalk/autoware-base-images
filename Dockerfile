@@ -80,7 +80,7 @@ RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-universe-depend-packages
   && cat /tmp/rosdep-universe-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
   && apt-get autoremove -y && rm -rf "$HOME"/.cache
 
-FROM base AS autoware-exec-depend
+FROM base AS exec-depend
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
   --mount=type=cache,target=/var/cache/apt,sharing=locked \
