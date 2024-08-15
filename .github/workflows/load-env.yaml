@@ -18,6 +18,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Download env files
+        run: |
+          wget -O amd64.env https://raw.githubusercontent.com/autowarefoundation/autoware/main/amd64.env
+          wget -O arm64.env https://raw.githubusercontent.com/autowarefoundation/autoware/main/arm64.env
+
       - name: Load env
         run: |
           cat amd64.env | sed -e "s/^\s*//" -e "/^#/d" >> $GITHUB_ENV

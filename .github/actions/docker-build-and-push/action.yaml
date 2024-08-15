@@ -10,10 +10,10 @@ inputs:
     required: true
   build-args:
     description: ""
-    required: false
+    required: true
   tag-prefix:
     description: ""
-    required: false
+    required: true
 
 runs:
   using: composite
