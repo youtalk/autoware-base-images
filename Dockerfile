@@ -2,9 +2,6 @@
 ARG BASE_IMAGE
 
 FROM $BASE_IMAGE AS base
-ARG ROS_DISTRO
-
-WORKDIR /autoware
 
 # https://github.com/astuff/pacmod3?tab=readme-ov-file#installation
 RUN apt-get update \
@@ -16,6 +13,8 @@ RUN apt-get update \
 
 FROM base AS rosdep-depend
 ARG ROS_DISTRO
+
+WORKDIR /autoware
 
 # Generate install package lists
 COPY src/core /autoware/src/core
