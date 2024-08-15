@@ -25,6 +25,9 @@ jobs:
           pip install --no-cache-dir vcstool
         shell: bash
 
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
       - name: Run vcs import
         run: |
           wget -O autoware.repos https://raw.githubusercontent.com/autowarefoundation/autoware/main/autoware.repos
