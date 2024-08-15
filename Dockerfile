@@ -40,7 +40,7 @@ RUN rosdep update && rosdep keys --ignore-src --from-paths src \
     | sed 's/ \+/\n/g'\
     | sort \
     > /rosdep-core-depend-packages.txt \
-    && cat /rosdep-core-depend-packages.txt
+  && cat /rosdep-core-depend-packages.txt
 
 COPY src/launcher /autoware/src/launcher
 COPY src/param /autoware/src/param
@@ -54,7 +54,7 @@ RUN rosdep keys --ignore-src --from-paths src \
     | sed 's/ \+/\n/g'\
     | sort \
     > /rosdep-universe-depend-packages.txt \
-    && cat /rosdep-universe-depend-packages.txt
+  && cat /rosdep-universe-depend-packages.txt
 
 RUN rosdep keys --dependency-types=exec --ignore-src --from-paths src \
     | xargs rosdep resolve --rosdistro ${ROS_DISTRO} \
@@ -62,7 +62,7 @@ RUN rosdep keys --dependency-types=exec --ignore-src --from-paths src \
     | sed 's/ \+/\n/g'\
     | sort \
     > /rosdep-exec-depend-packages.txt \
-    && cat /rosdep-exec-depend-packages.txt
+  && cat /rosdep-exec-depend-packages.txt
 
 FROM base AS autoware-core-depend
 
