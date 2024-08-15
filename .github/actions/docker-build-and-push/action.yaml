@@ -42,7 +42,10 @@ runs:
       id: set-docker-tags
       run: |
         tags=()
-        tags+=("${{ inputs.tag-prefix }}-{{date 'YYYYMMDD'}}")
+        tags+=("latest")
+        tags+=("latest-${{ inputs.tag-prefix }}")
+        tags+=("{{date 'YYYYMMDD'}}")
+        tags+=("{{date 'YYYYMMDD'}}-${{ inputs.tag-prefix }}")
 
         # Output multiline strings: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -58,6 +61,9 @@ runs:
         images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-core-depend
+        flavor: |
+          latest=false
+          suffix=-autoware-core-depend
 
     - name: Docker meta for autoware-universe-depend
       id: meta-autoware-universe-depend
@@ -66,6 +72,9 @@ runs:
         images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-universe-depend
+        flavor: |
+          latest=false
+          suffix=-autoware-universe-depend
 
     - name: Docker meta for exec-depend
       id: meta-exec-depend
@@ -74,6 +83,9 @@ runs:
         images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-exec-depend
+        flavor: |
+          latest=true
+          suffix=-autoware-exec-depend
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
