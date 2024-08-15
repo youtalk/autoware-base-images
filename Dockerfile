@@ -4,16 +4,13 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE AS base
 ARG ROS_DISTRO
 
-# Keep downlaoded packages to cache them by "--mount=type=cache"
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-  && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache
-
 WORKDIR /autoware
 
 # https://github.com/astuff/pacmod3?tab=readme-ov-file#installation
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     apt-transport-https \
+  && rm -rf /var/lib/apt/lists/* \
   && sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list' \
   && apt-get update
 
@@ -50,20 +47,20 @@ RUN rosdep keys --dependency-types=exec --ignore-src --from-paths src \
 FROM base AS autoware-core-depend
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-core-depend-packages.txt,target=/tmp/rosdep-core-depend-packages.txt \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get update \
-  && cat /tmp/rosdep-core-depend-packages.txt | xargs apt-get install -y --no-install-recommends
+  && cat /tmp/rosdep-core-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 
 FROM base AS autoware-universe-depend
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-universe-depend-packages.txt,target=/tmp/rosdep-universe-depend-packages.txt \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get update \
-  && cat /tmp/rosdep-universe-depend-packages.txt | xargs apt-get install -y --no-install-recommends
+  && cat /tmp/rosdep-universe-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 
 FROM base AS exec-depend
 
 RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get update \
-  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends
+  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
