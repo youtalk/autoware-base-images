@@ -84,7 +84,7 @@ RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-universe-depend-packages
 
 FROM autoware-universe-base AS autoware-universe-cuda-base
 
-# Set up NVIDIA environment
+# TODO(youtalk): Create playbook only for installing NVIDIA drivers
 RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --no-cuda-drivers openadkit \
   && pip uninstall -y ansible ansible-core \
@@ -94,7 +94,7 @@ FROM base AS runtime-base
 
 # Set up runtime environment
 RUN --mount=type=ssh \
-  && ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
+  ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
   && find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
@@ -115,7 +115,7 @@ FROM runtime-base AS runtime-cuda-base
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
 RUN --mount=type=ssh \
-  && ./setup-dev-env.sh -y --module all --download-artifacts --no-cuda-drivers --runtime openadkit \
+  ./setup-dev-env.sh -y --module all --download-artifacts --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
   && find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
