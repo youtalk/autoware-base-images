@@ -107,7 +107,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
     else \
         echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
         exit 1; \
-    fi
+    fi \
+  && echo $LIB_DIR
 
 # Set up runtime environment
 RUN --mount=type=ssh \
@@ -140,7 +141,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
     else \
         echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
         exit 1; \
-    fi
+    fi \
+  && echo $LIB_DIR
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
 RUN --mount=type=ssh \
