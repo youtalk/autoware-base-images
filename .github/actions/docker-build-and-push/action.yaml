@@ -2,7 +2,10 @@ name: docker-build-and-push
 description: ""
 
 inputs:
-  bake-target:
+  name:
+    description: ""
+    required: true
+  bake-file:
     description: ""
     required: true
   build-args:
@@ -38,7 +41,7 @@ runs:
       id: meta-autoware-core-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-core-base
         flavor: |
@@ -49,7 +52,7 @@ runs:
       id: meta-autoware-universe-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-universe-base
         flavor: |
@@ -60,7 +63,7 @@ runs:
       id: meta-runtime-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-runtime-base
         flavor: |
@@ -78,7 +81,7 @@ runs:
       with:
         push: true
         files: |
-          docker-bake.hcl
+          ${{ inputs.bake-file }}
           ${{ steps.meta-autoware-core-base.outputs.bake-file }}
           ${{ steps.meta-autoware-universe-base.outputs.bake-file }}
           ${{ steps.meta-runtime-base.outputs.bake-file }}
