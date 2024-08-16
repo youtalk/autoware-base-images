@@ -98,10 +98,16 @@ RUN --mount=type=ssh \
 FROM base AS runtime-base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETPLATFORM
-ENV LIB_DIR="$(case ${TARGETPLATFORM} in \
-                 linux/amd64 ) echo 'x86_64';; \
-                 linux/arm64 ) echo 'aarch64';; \
-               esac)"
+ARG LIB_DIR
+
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        LIB_DIR="x86_64"; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        LIB_DIR="aarch64"; \
+    else \
+        echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
+        exit 1; \
+    fi
 
 # Set up runtime environment
 RUN --mount=type=ssh \
@@ -125,10 +131,16 @@ RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt
 
 FROM runtime-base AS runtime-cuda-base
 ARG TARGETPLATFORM
-ENV LIB_DIR="$(case ${TARGETPLATFORM} in \
-                 linux/amd64 ) echo 'x86_64';; \
-                 linux/arm64 ) echo 'aarch64';; \
-               esac)"
+ARG LIB_DIR
+
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        LIB_DIR="x86_64"; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        LIB_DIR="aarch64"; \
+    else \
+        echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
+        exit 1; \
+    fi
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
 RUN --mount=type=ssh \
