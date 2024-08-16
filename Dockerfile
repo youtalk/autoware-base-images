@@ -91,6 +91,7 @@ RUN --mount=type=ssh \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache
 
 FROM base AS runtime-base
+ARG TARGETPLATFORM
 
 # Set up runtime environment
 RUN --mount=type=ssh \
@@ -118,6 +119,7 @@ RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt
   && rm -rf /var/lib/apt/lists/*
 
 FROM runtime-base AS runtime-cuda-base
+ARG TARGETPLATFORM
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
 RUN --mount=type=ssh \
