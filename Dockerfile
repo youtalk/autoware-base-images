@@ -97,22 +97,13 @@ RUN --mount=type=ssh \
 
 FROM base AS runtime-base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ARG TARGETPLATFORM
 
 # Set up runtime environment
 RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
-  && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        LIB_DIR="x86_64"; \
-    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        LIB_DIR="aarch64"; \
-    else \
-        echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
-        exit 1; \
-    fi \
-  $$ find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
+  $$ find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
@@ -128,22 +119,13 @@ RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt
   && rm -rf /var/lib/apt/lists/*
 
 FROM runtime-base AS runtime-cuda-base
-ARG TARGETPLATFORM
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
 RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --download-artifacts --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
-  && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        LIB_DIR="x86_64"; \
-    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        LIB_DIR="aarch64"; \
-    else \
-        echo "Unsupported TARGETPLATFORM: $TARGETPLATFORM"; \
-        exit 1; \
-    fi \
-  $$ find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
+  $$ find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
