@@ -97,6 +97,12 @@ RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
+  && LIB_DIR=$( \
+      case ${TARGETPLATFORM} in \
+        linux/amd64 ) echo "x86_64";; \
+        linux/arm64 ) echo "aarch64";; \
+      esac \
+    ) \
   && find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
@@ -118,6 +124,12 @@ RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --download-artifacts --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
+  && LIB_DIR=$( \
+      case ${TARGETPLATFORM} in \
+        linux/amd64 ) echo "x86_64";; \
+        linux/arm64 ) echo "aarch64";; \
+      esac \
+    ) \
   && find /usr/lib/$LIB_DIR-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
