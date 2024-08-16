@@ -18,10 +18,9 @@ WORKDIR /autoware
 
 # Set up base environment
 RUN --mount=type=ssh \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
   ./setup-dev-env.sh -y --module base --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
-  && apt-get autoremove -y && rm -rf "$HOME"/.cache \
+  && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
   && echo "source /opt/ros/${ROS_DISTRO}/setup.bash" > /etc/bash.bashrc
 
 FROM base AS rosdep-depend
@@ -99,22 +98,41 @@ FROM base AS runtime-base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set up runtime environment
-# hadolint ignore=SC2002
 RUN --mount=type=ssh \
-  --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
   ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
-  && apt-get update \
-  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
   && find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
-  && rm -rf /autoware/ansible \
-    /root/.local/pipx /opt/ros/"$ROS_DISTRO"/include /etc/apt/sources.list.d/cuda*.list \
-    /etc/apt/sources.list.d/docker.list /etc/apt/sources.list.d/nvidia-docker.list \
-    /usr/include /usr/share/doc /usr/lib/gcc /usr/lib/jvm /usr/lib/llvm*
+  && rm -rf \
+    /root/.local/pipx \
+    /opt/ros/"$ROS_DISTRO"/include \
+    /etc/apt/sources.list.d/docker.list \
+    /usr/include \
+    /usr/share/doc \
+    /usr/lib/gcc \
+    /usr/lib/jvm \
+    /usr/lib/llvm*
+
+# hadolint ignore=SC2002
+RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
+  apt-get update \
+  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
+  && find / -name "*.o" -type f -delete \
+  && find / -name "*.h" -type f -delete \
+  && find / -name "*.hpp" -type f -delete \
+  && rm -rf \
+    /root/.local/pipx \
+    /opt/ros/"$ROS_DISTRO"/include \
+    /usr/include \
+    /usr/share/doc \
+    /usr/lib/gcc \
+    /usr/lib/jvm \
+    /usr/lib/llvm*
 
 FROM runtime-base AS runtime-cuda-base
 
@@ -127,7 +145,13 @@ RUN --mount=type=ssh \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
-  && rm -rf /autoware/ansible \
-    /root/.local/pipx /opt/ros/"$ROS_DISTRO"/include /etc/apt/sources.list.d/cuda*.list \
-    /etc/apt/sources.list.d/docker.list /etc/apt/sources.list.d/nvidia-docker.list \
-    /usr/include /usr/share/doc /usr/lib/gcc /usr/lib/jvm /usr/lib/llvm*
+  && rm -rf \
+    /root/.local/pipx \
+    /opt/ros/"$ROS_DISTRO"/include \
+    /etc/apt/sources.list.d/cuda*.list \
+    /etc/apt/sources.list.d/nvidia-docker.list \
+    /usr/include \
+    /usr/share/doc \
+    /usr/lib/gcc \
+    /usr/lib/jvm \
+    /usr/lib/llvm
