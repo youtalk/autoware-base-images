@@ -21,7 +21,7 @@ jobs:
       - name: Check out autowarefoundation/autoware repository
         uses: actions/checkout@v4
         with:
-          repository: https://github.com/autowarefoundation/autoware.git
+          repository: autowarefoundation/autoware
           path: 'autoware'
 
       - name: Install vcstool
