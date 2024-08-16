@@ -15,8 +15,14 @@ jobs:
     needs: load-env
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out this repository
         uses: actions/checkout@v4
+
+      - name: Check out autowarefoundation/autoware repository
+        uses: actions/checkout@v4
+        with:
+          repository: https://github.com/autowarefoundation/autoware.git
+          path: 'autoware'
 
       - name: Install vcstool
         run: |
@@ -30,9 +36,8 @@ jobs:
 
       - name: Run vcs import
         run: |
-          wget -O autoware.repos https://raw.githubusercontent.com/autowarefoundation/autoware/main/autoware.repos
-          mkdir src
-          vcs import src < autoware.repos
+          mkdir -p autoware/src
+          vcs import autoware/src < autoware/autoware.repos
         shell: bash
 
       - name: Set up QEMU
