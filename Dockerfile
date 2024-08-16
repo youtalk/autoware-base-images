@@ -99,11 +99,15 @@ FROM base AS runtime-base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set up runtime environment
+# hadolint ignore=SC2002
 RUN --mount=type=ssh \
+  --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
   ./setup-dev-env.sh -y --module all --no-nvidia --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
+  && apt-get update \
+  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
-  $$ find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
+  && find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
@@ -112,12 +116,6 @@ RUN --mount=type=ssh \
     /etc/apt/sources.list.d/docker.list /etc/apt/sources.list.d/nvidia-docker.list \
     /usr/include /usr/share/doc /usr/lib/gcc /usr/lib/jvm /usr/lib/llvm*
 
-# hadolint ignore=SC2002
-RUN --mount=type=bind,from=rosdep-depend,source=/rosdep-exec-depend-packages.txt,target=/tmp/rosdep-exec-depend-packages.txt \
-  apt-get update \
-  && cat /tmp/rosdep-exec-depend-packages.txt | xargs apt-get install -y --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
-
 FROM runtime-base AS runtime-cuda-base
 
 # TODO(youtalk): Create playbook only for installing NVIDIA drivers and downloaded artifacts
@@ -125,7 +123,7 @@ RUN --mount=type=ssh \
   ./setup-dev-env.sh -y --module all --download-artifacts --no-cuda-drivers --runtime openadkit \
   && pip uninstall -y ansible ansible-core \
   && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* "$HOME"/.cache \
-  $$ find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
+  && find /usr/lib/*-linux-gnu -name "*.a" -type f -delete \
   && find / -name "*.o" -type f -delete \
   && find / -name "*.h" -type f -delete \
   && find / -name "*.hpp" -type f -delete \
