@@ -15,8 +15,14 @@ jobs:
     needs: load-env
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out this repository
         uses: actions/checkout@v4
+
+      - name: Check out autowarefoundation/autoware repository
+        uses: actions/checkout@v4
+        with:
+          repository: autowarefoundation/autoware
+          path: 'autoware'
 
       - name: Install vcstool
         run: |
@@ -30,9 +36,8 @@ jobs:
 
       - name: Run vcs import
         run: |
-          wget -O autoware.repos https://raw.githubusercontent.com/autowarefoundation/autoware/main/autoware.repos
-          mkdir src
-          vcs import src < autoware.repos
+          mkdir -p autoware/src
+          vcs import autoware/src < autoware/autoware.repos
         shell: bash
 
       - name: Set up QEMU
@@ -44,7 +49,8 @@ jobs:
       - name: Build Autoware's base images
         uses: ./.github/actions/docker-build-and-push
         with:
-          bake-target: autoware-base
+          name: autoware-base
+          bake-file: docker-bake.hcl
           build-args: |
             *.platform=linux/amd64,linux/arm64
             *.args.ROS_DISTRO=${{ needs.load-env.outputs.rosdistro }}

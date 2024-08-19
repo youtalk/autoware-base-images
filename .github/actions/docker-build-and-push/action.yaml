@@ -2,7 +2,10 @@ name: docker-build-and-push
 description: ""
 
 inputs:
-  bake-target:
+  name:
+    description: ""
+    required: true
+  bake-file:
     description: ""
     required: true
   build-args:
@@ -38,7 +41,7 @@ runs:
       id: meta-autoware-core-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-core-base
         flavor: |
@@ -49,23 +52,45 @@ runs:
       id: meta-autoware-universe-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-autoware-universe-base
         flavor: |
           latest=false
           suffix=-autoware-universe-base
 
+    - name: Docker meta for autoware-universe-cuda-base
+      id: meta-autoware-universe-cuda-base
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
+        tags: ${{ steps.set-docker-tags.outputs.tags }}
+        bake-target: docker-metadata-action-autoware-universe-cuda-base
+        flavor: |
+          latest=false
+          suffix=-autoware-universe-cuda-base
+
     - name: Docker meta for runtime-base
       id: meta-runtime-base
       uses: docker/metadata-action@v5
       with:
-        images: ${{ github.repository_owner }}/${{ inputs.bake-target }}
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
         tags: ${{ steps.set-docker-tags.outputs.tags }}
         bake-target: docker-metadata-action-runtime-base
         flavor: |
           latest=true
           suffix=-runtime-base
+
+    - name: Docker meta for runtime-cuda-base
+      id: meta-runtime-cuda-base
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ github.repository_owner }}/${{ inputs.name }}
+        tags: ${{ steps.set-docker-tags.outputs.tags }}
+        bake-target: docker-metadata-action-runtime-cuda-base
+        flavor: |
+          latest=true
+          suffix=-runtime-cuda-base
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
@@ -78,10 +103,12 @@ runs:
       with:
         push: true
         files: |
-          docker-bake.hcl
+          ${{ inputs.bake-file }}
           ${{ steps.meta-autoware-core-base.outputs.bake-file }}
           ${{ steps.meta-autoware-universe-base.outputs.bake-file }}
+          ${{ steps.meta-autoware-universe-cuda-base.outputs.bake-file }}
           ${{ steps.meta-runtime-base.outputs.bake-file }}
+          ${{ steps.meta-runtime-cuda-base.outputs.bake-file }}
         provenance: false
         set: |
           ${{ inputs.build-args }}
